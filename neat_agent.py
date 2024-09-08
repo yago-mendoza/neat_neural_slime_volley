@@ -1,42 +1,50 @@
-import numpy as np
+from utils import np
+from utils.timer import timer
+
+class Genome:
+    def __init__(self, input_size: int, output_size: int):
+        self.input_size: int = input_size
+        self.output_size: int = output_size
+        self.weights: np.ndarray = np.random.randn(input_size, output_size)
+        self.bias: np.ndarray = np.random.randn(output_size)
+        self.fitness: float = 0
+
+    def forward(self, x: np.ndarray) -> np.ndarray:
+        return np.dot(x, self.weights) + self.bias
+
+    def choose_action(self, obs: np.ndarray) -> list:
+        output = self.forward(obs)
+        action = (output == np.max(output)).astype(int)
+        return action.tolist() 
 
 class NEATAgent:
-    def __init__(self, input_size, output_size, population_size=100):
-        # Input/output sizes from SlimeVolley-v0 env
+    def __init__(self, input_size, output_size, population_size=50):
         self.input_size = input_size
-        self.output_size = output_size 
-        
-        # Initialize population of genomes
+        self.output_size = output_size
         self.population_size = population_size
-        self.population = self.initialize_population()
+        self.genomes = [
+            Genome(input_size, output_size)
+            for _ in range(population_size)
+        ]
+    
+    @timer
+    def evolve_genomes(self):
+        # Sort genomes by fitness
+        self.genomes.sort(key=lambda x: x.fitness, reverse=True)
+        
+        # Keep the top half
+        top_half = self.genomes[:self.population_size // 2]
+        
+        # Create new genomes to replace the bottom half
+        new_genomes = []
+        for _ in range(self.population_size - len(top_half)):
+            parent = np.random.choice(top_half)
+            child = Genome(self.input_size, self.output_size)
+            child.weights = parent.weights + np.random.normal(0, 0.1, parent.weights.shape)
+            child.bias = parent.bias + np.random.normal(0, 0.1, parent.bias.shape)
+            new_genomes.append(child)
+        
+        self.genomes = top_half + new_genomes
 
-    def initialize_population(self):
-        # Initialize a population of genomes
-        population = []
-        for _ in range(self.population_size):
-            genome = {
-                'nodes': self.input_size + self.output_size,
-                'connections': [],
-                'fitness': 0
-            }
-            # Add initial connections (you may want to start with a fully connected network)
-            for i in range(self.input_size):
-                for j in range(self.input_size, self.input_size + self.output_size):
-                    genome['connections'].append({
-                        'in': i,
-                        'out': j,
-                        'weight': np.random.randn(),
-                        'enabled': True
-                    })
-            population.append(genome)
-        return population
-
-    def choose_action(self, obs):
-        # For now, just return a random action
-        return np.random.randint(3)  # SlimeVolley has 3 possible actions
-
-    def learn(self, obs, action, reward, next_obs, done):
-        # This is where we'll implement the NEAT algorithm
-        pass
-
-# Add more methods for NEAT operations (mutation, crossover, speciation, etc.)
+    def get_best_genome(self):
+        return max(self.genomes, key=lambda x: x.fitness)
