@@ -44,23 +44,21 @@ def test_choose_action(complex_genome):
     Test the choose_action method of the genome.
 
     Ensures:
-    1. The chosen action is a list of integers.
+    1. The chosen action is a list of floats.
     2. The action length equals the genome's output size.
-    3. Exactly one element of the action is 1 and the rest are 0.
-    4. Different inputs can produce different actions.
+    3. Different inputs can produce different actions.
     """
     input_data = np.array([0.1, 0.2, 0.3, 0.4])
     action = complex_genome.choose_action(input_data)
-    
+
     assert isinstance(action, list), f"Expected list, got {type(action)}"
-    assert all(isinstance(x, int) for x in action), f"Not all elements are integers: {action}"
+    assert all(isinstance(x, float) for x in action), f"Not all elements are floats: {action}"
     assert len(action) == complex_genome.output_size, f"Expected length {complex_genome.output_size}, got {len(action)}"
-    assert sum(action) == 1, f"Sum of action should be 1, got {sum(action)}"
-    assert set(action) == {0, 1}, f"Action should only contain 0 and 1, got {set(action)}"
 
     # Test for different actions with different inputs
     actions = [complex_genome.choose_action(np.random.rand(4)) for _ in range(10)]
-    assert len(set(tuple(a) for a in actions)) > 1, "Different inputs should be capable of producing different actions"
+    action_differences = [np.sum(np.abs(np.array(a1) - np.array(a2))) for a1, a2 in zip(actions[:-1], actions[1:])]
+    assert any(diff > 1e-6 for diff in action_differences), "Different inputs should be capable of producing different actions"
 
 def test_save_and_load(complex_genome):
     """

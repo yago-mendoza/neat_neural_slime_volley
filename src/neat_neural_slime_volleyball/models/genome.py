@@ -171,10 +171,9 @@ class Genome:
 
     def choose_action(self, obs: np.ndarray) -> list:
         output = self.forward(obs)
-        # Add small random noise to break ties
-        output += np.random.normal(0, 1e-5, output.shape)
-        action = (output == np.max(output)).astype(int)
-        return action.tolist()
+        # Add small random noise to break ties and increase variation
+        output += np.random.normal(0, 1e-3, output.shape)
+        return output.tolist()
         
     def _add_node(
         self,

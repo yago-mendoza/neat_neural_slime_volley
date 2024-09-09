@@ -19,12 +19,21 @@ def test_node_types(genome):
     assert len(output_nodes) == 2
 
 def test_add_hidden_node(genome):
+    initial_synapse_count = len(genome.synapses)
     input_node = next(n for n in genome.nodes.values() if n.type == "input")
     output_node = next(n for n in genome.nodes.values() if n.type == "output")
     hidden_id, hidden_node = genome.add_hidden_node(input_node, output_node)
+    
     assert hidden_node.type == "hidden"
-    assert len(genome.nodes) == 6
-    assert len(genome.synapses) == 8
+    assert len(genome.nodes) == 6  # Assuming we started with 5 nodes
+    assert len(genome.synapses) == initial_synapse_count + 1  # We remove 1 and add 2, so net increase is 1
+    
+    # Check that the new synapses exist
+    assert any(s for s in genome.synapses.values() if s.from_node == input_node.id and s.to_node == hidden_id)
+    assert any(s for s in genome.synapses.values() if s.from_node == hidden_id and s.to_node == output_node.id)
+    
+    # Check that the direct synapse between input and output no longer exists
+    assert not any(s for s in genome.synapses.values() if s.from_node == input_node.id and s.to_node == output_node.id)
 
 def test_add_hidden_node_invalid(genome):
     input_nodes = [n for n in genome.nodes.values() if n.type == "input"]
