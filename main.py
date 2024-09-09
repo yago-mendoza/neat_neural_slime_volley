@@ -1,5 +1,6 @@
 
 from vendor.fixed_slimevolley import SlimeVolleyEnv
+from utils.sym_render import simulate_game
 import warnings
 from neat_agent import NEATAgent
 from vendor import np
@@ -7,7 +8,8 @@ from utils.timer import timer
 from utils.dual_plot import DualPlot
 from datetime import datetime
 import time
-
+import pygame
+import random
 
 # Suppress specific warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="gym.utils.passive_env_checker")
@@ -19,9 +21,9 @@ OUTPUT_FOLDER = "output"
 timestamp = datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
 
 # Initialize the NEAT population
-population_size = 2 # number of genomes in the population
-num_generations = 1 # number of generations to evolve
-num_episodes = 1 # number of episodes (games) to evaluate each genome
+population_size = 100 # number of genomes in the population
+num_generations = 100 # number of generations to evolve
+num_episodes = 2 # number of episodes (games) to evaluate each genome
 # (1 game = either player loses 5 lifes (5 rallies) or 3000 steps are reached)
 
 # Create the population of genomes
@@ -41,6 +43,7 @@ for generation in range(num_generations):
 
     for genome in neat_agent.genomes:
         genome.stats.reset()  # Reset stats for each genome before evaluation
+
         for episode in range(num_episodes):
             obs, done = env.reset(), False
             prev_ball_x, prev_ball_y = obs[4], obs[5]  # Initial ball position
@@ -63,16 +66,18 @@ for generation in range(num_generations):
         # Calculate fitness after all episodes
         genome.fitness = neat_agent.calculate_fitness(genome.stats)
         
+    print("@Population statistics:")
+
     fitnesses = [genome.fitness for genome in neat_agent.genomes]
     steps = [genome.stats.total_steps for genome in neat_agent.genomes]
 
-    print("@Population statistics:")
     print(f"  Fitness: μ = {np.mean(fitnesses):.2f}, [{min(fitnesses):.2f}, {max(fitnesses):.2f}]")
     print(f"  Steps:   μ = {np.mean(steps):.2f}, [{min(steps):.2f}, {max(steps):.2f}]")
 
+    print("@Best genome:")
+
     best_genome = max(neat_agent.genomes, key=lambda g: g.fitness)
 
-    print("@Best genome:")
     print(f"  Fitness: {best_genome.fitness:.2f}")
     print(f"  Steps:   {best_genome.stats.total_steps:.2f}")
     print(f"  Points:  {best_genome.stats.points_scored:.2f}/{best_genome.stats.points_lost:.2f}")
@@ -86,44 +91,4 @@ for generation in range(num_generations):
     print("Evolving genomes...")
     neat_agent.evolve_genomes()
 
-
-import pygame
-
-print("----------------------------------------------")
-print("----------------------------------------------")
-print("Evolution complete. Starting game simulation.")
-
-input("Press Enter to start the game...")
-
-# Render the best genome
-best_genome = neat_agent.get_best_genome()
-
-env.render()  # This will initialize the rendering
-obs, done = env.reset(), False
-
-frame_count = 0
-clock = pygame.time.Clock()
-running = True
-while running and not done:
-    frame_count += 1
-    print(f"Frame {frame_count}")
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    
-    action = best_genome.choose_action(obs)
-    print(f"Action chosen: {action}")
-    
-    obs, reward, done, _ = env.step(action)
-    print(f"Observation shape: {obs.shape}, Reward: {reward}, Done: {done}")
-    
-    env.render()
-    print("Frame rendered")
-    
-    pygame.display.flip()
-    clock.tick(30)  # Limit to 30 FPS
-
-print("Game simulation complete.")
-env.close()
-pygame.quit()
+simulate_game(env, best_genome)

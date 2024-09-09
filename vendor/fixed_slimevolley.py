@@ -1137,7 +1137,6 @@ if __name__=="__main__":
       obs, reward, done, _ = env.step(action)
 
     if reward > 0 or reward < 0:
-      print("reward", reward)
       manualMode = False
       otherManualMode = False
 
@@ -1155,4 +1154,3 @@ if __name__=="__main__":
         sleep(0.02)
 
   env.close()
-  print("cumulative score", total_reward)

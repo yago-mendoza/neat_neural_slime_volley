@@ -79,6 +79,3 @@ class NEATAgent:
             new_genomes.append(child)
         
         self.genomes = top_half + new_genomes
-
-    def get_best_genome(self):
-        return max(self.genomes, key=lambda x: x.fitness)
