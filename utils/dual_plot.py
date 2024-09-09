@@ -31,12 +31,12 @@ class DualPlot:
         self.steps_best.append(steps_best)
         self.steps_mean.append(np.mean(steps_data))
 
-    @timer
     def plot(self):
-        for ax, data, best, mean in zip([self.ax1, self.ax2], 
+        for ax, data, best, mean, is_fitness in zip([self.ax1, self.ax2], 
                                         [self.fitness_data, self.steps_data],
                                         [self.fitness_best, self.steps_best],
-                                        [self.fitness_mean, self.steps_mean]):
+                                        [self.fitness_mean, self.steps_mean],
+                                        [True, False]):
             ax.clear()
             ax.grid(True, linestyle='--', alpha=0.7)
             
@@ -48,7 +48,10 @@ class DualPlot:
                                      patch_artist=True, showfliers=False)
                 
                 for box in boxplot['boxes']:
-                    box.set(facecolor='mistyrose', alpha=0.8)
+                    if ax == self.ax1:
+                        box.set(facecolor='lightblue', alpha=0.8)
+                    else:
+                        box.set(facecolor='mistyrose', alpha=0.8)
                     box.set(edgecolor='none')
                 
                 for whisker in boxplot['whiskers']:
@@ -59,7 +62,8 @@ class DualPlot:
                 for median in boxplot['medians']:
                     median.set(color='red', alpha=0.3, linewidth=0.5)
                 
-                ax.plot(positions, best, color='red', linewidth=1, label='Best Genome')
+                color = 'blue' if is_fitness else 'red'
+                ax.plot(positions, best, color=color, linewidth=1, label='Best Genome')
                 ax.plot(positions, mean, color='green', linestyle='--', linewidth=1, label='Mean')
                 
                 ax.legend()
