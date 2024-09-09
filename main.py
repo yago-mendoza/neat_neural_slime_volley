@@ -2,7 +2,7 @@
 from vendor.fixed_slimevolley import SlimeVolleyEnv
 import warnings
 from neat_agent import NEATAgent
-from utils import np
+from vendor import np
 from utils.timer import timer
 from utils.dual_plot import DualPlot
 from datetime import datetime

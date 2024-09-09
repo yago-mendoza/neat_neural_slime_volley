@@ -1,1 +1,0 @@
-from .numpy_compat import np

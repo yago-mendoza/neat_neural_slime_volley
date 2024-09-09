@@ -1,4 +1,4 @@
-from utils import np
+from vendor import np
 from utils.timer import timer
 
 class GenomeStats:
