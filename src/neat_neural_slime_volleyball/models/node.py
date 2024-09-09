@@ -35,23 +35,26 @@ class Node:
         self.value = 0.0
     
     def set_bias(self, bias: float):
+        # This is just a setter for the bias (in case we want to change it later)
         self.bias = bias
         return self
     
     def set_activation_function(self, activation_function: str):
+        # This is just a setter for the bias (in case we want to change it later)
         self.activation_function = ACTIVATION_FUNCTIONS[activation_function]
         return self
     
     def to_dict(self):
+        # This is used to save the genome to a file
         return {
             "id": self.id,
             "type": self.type,
             "bias": self.bias,
             "activation_function": self.activation_function.__name__
         }
-
     @classmethod
     def from_dict(cls, data):
+        # This is used to load the genome from a file
         node = cls(data["id"], data["type"])
         node.set_bias(data["bias"])
         node.set_activation_function(data["activation_function"])

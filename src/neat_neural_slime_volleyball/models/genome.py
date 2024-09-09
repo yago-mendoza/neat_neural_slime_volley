@@ -250,6 +250,15 @@ class Genome:
         return self.__str__()
     
     def save(self, save_path: str = None):
+        """
+        Save the genome to a file.
+
+        Args:
+            save_path: The path to the file to save the genome to. If None, a timestamped file will be created in the current working directory.
+
+        Example:
+            genome.save("genome_20240510_123456_789012.json")
+        """
         if save_path is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             save_path = f"genome_{timestamp}.json"
@@ -271,6 +280,18 @@ class Genome:
     
     @classmethod
     def load(cls, load_path: str):
+        """
+        Load a genome from a file.
+
+        Args:
+            load_path: The path to the file to load the genome from.
+
+        Returns:
+            The loaded genome.
+
+        Example:
+            genome = Genome.load("genome_20240510_123456_789012.json")
+        """
         with open(load_path, "r") as f:
             genome_data = json.load(f)
 
