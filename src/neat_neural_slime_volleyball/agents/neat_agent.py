@@ -1,5 +1,5 @@
-from vendor import np
-from utils.timer import timer
+from ..vendor import np
+from ..utils.timer import timer
 
 class NodeGene:
     def __init__(self, node_id, node_type):
@@ -74,7 +74,6 @@ class NEATAgent:
         )
 
         genome.fitness = fitness
-
         return fitness
 
     @timer

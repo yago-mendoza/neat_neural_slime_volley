@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.timer import timer
+from .timer import timer
 from pathlib import Path
 
 class DualPlot:

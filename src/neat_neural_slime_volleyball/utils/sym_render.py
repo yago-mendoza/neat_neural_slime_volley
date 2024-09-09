@@ -1,9 +1,8 @@
 import pygame
 import sys
-from vendor.fixed_slimevolley import SlimeVolleyEnv
+from ..vendor.fixed_slimevolley import SlimeVolleyEnv
 import numpy as np
 from typing import Tuple, List, Optional
-from neat_agent import Genome
 
 class Simulation:
     """

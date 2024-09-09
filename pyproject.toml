@@ -4,6 +4,12 @@ version = "0.1.0"
 description = ""
 authors = ["yago-mendoza <yagomendoza.dev@gmail.com>"]
 readme = "README.md"
+packages = [
+    { include = "neat_neural_slime_volleyball", from = "src" },
+]
+
+[tool.poetry.scripts]
+run = "main:main"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -12,9 +18,14 @@ opencv-python = "^4.10.0.84"
 numpy = "^2.1.1"
 matplotlib = "^3.9.2"
 pygame = "^2.6.0"
-
+pytest = "^8.3.2"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-package-mode = false
+
+[tool.pytest.ini_options]
+pythonpath = [
+    ".",
+    "src"
+]
