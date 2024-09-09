@@ -1,46 +1,7 @@
 from ..vendor import np
 from ..utils.timer import timer
+from ..models.genome import Genome
 
-class NodeGene:
-    def __init__(self, node_id, node_type):
-        self.id = node_id
-        self.type = node_type  # 'input', 'hidden', or 'output'
-
-class ConnectionGene:
-    def __init__(self, in_node, out_node, weight, enabled=True, innovation=None):
-        self.in_node = in_node
-        self.out_node = out_node
-        self.weight = weight
-        self.enabled = enabled
-        self.innovation = innovation
-
-class GenomeStats:
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.points_scored = 0
-        self.points_lost = 0
-        self.total_steps = 0
-        self.ball_touches = 0
-
-class Genome:
-    def __init__(self, input_size: int, output_size: int):
-        self.input_size: int = input_size
-        self.output_size: int = output_size
-        self.weights: np.ndarray = np.random.randn(input_size, output_size)
-        self.bias: np.ndarray = np.random.randn(output_size)
-
-        self.fitness: float = 0
-        self.stats = GenomeStats()
-
-    def forward(self, x: np.ndarray) -> np.ndarray:
-        return np.dot(x, self.weights) + self.bias
-
-    def choose_action(self, obs: np.ndarray) -> list:
-        output = self.forward(obs)
-        action = (output == np.max(output)).astype(int)
-        return action.tolist() 
 
 class NEATAgent:
     def __init__(self, input_size, output_size, population_size=50):
@@ -63,8 +24,8 @@ class NEATAgent:
         normalized_touches = min(stats.ball_touches / max_touches, 1)
 
         # Weight the components
-        point_weight = 0.9
-        step_weight = 0.05
+        point_weight = 0.85
+        step_weight = 0.10
         touch_weight = 0.05
 
         fitness = (

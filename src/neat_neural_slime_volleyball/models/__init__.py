@@ -1,1 +1,1 @@
-from .genome import Genome, Node, Connection
+from .genome import Genome, Node, Synapse
