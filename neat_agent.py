@@ -1,6 +1,19 @@
 from vendor import np
 from utils.timer import timer
 
+class NodeGene:
+    def __init__(self, node_id, node_type):
+        self.id = node_id
+        self.type = node_type  # 'input', 'hidden', or 'output'
+
+class ConnectionGene:
+    def __init__(self, in_node, out_node, weight, enabled=True, innovation=None):
+        self.in_node = in_node
+        self.out_node = out_node
+        self.weight = weight
+        self.enabled = enabled
+        self.innovation = innovation
+
 class GenomeStats:
     def __init__(self):
         self.reset()
@@ -39,7 +52,8 @@ class NEATAgent:
             for _ in range(population_size)
         ]
     
-    def calculate_fitness(self, stats):
+    def calculate_fitness(self, genome: Genome):
+        stats = genome.stats
         # Normalize values
         max_steps = 3000  # Maximum possible steps in a game
         max_touches = 100  # Arbitrary max, adjust based on observations
@@ -58,6 +72,8 @@ class NEATAgent:
             step_weight * normalized_steps +
             touch_weight * normalized_touches
         )
+
+        genome.fitness = fitness
 
         return fitness
 
