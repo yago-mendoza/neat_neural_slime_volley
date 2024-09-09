@@ -1,13 +1,25 @@
 from utils import np
 from utils.timer import timer
 
+class GenomeStats:
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.points_scored = 0
+        self.points_lost = 0
+        self.total_steps = 0
+        self.ball_touches = 0
+
 class Genome:
     def __init__(self, input_size: int, output_size: int):
         self.input_size: int = input_size
         self.output_size: int = output_size
         self.weights: np.ndarray = np.random.randn(input_size, output_size)
         self.bias: np.ndarray = np.random.randn(output_size)
+
         self.fitness: float = 0
+        self.stats = GenomeStats()
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         return np.dot(x, self.weights) + self.bias
@@ -19,14 +31,36 @@ class Genome:
 
 class NEATAgent:
     def __init__(self, input_size, output_size, population_size=50):
-        self.input_size = input_size
-        self.output_size = output_size
+        self.input_size = input_size # 13
+        self.output_size = output_size # 3
         self.population_size = population_size
         self.genomes = [
             Genome(input_size, output_size)
             for _ in range(population_size)
         ]
     
+    def calculate_fitness(self, stats):
+        # Normalize values
+        max_steps = 3000  # Maximum possible steps in a game
+        max_touches = 100  # Arbitrary max, adjust based on observations
+
+        normalized_points = (stats.points_scored - stats.points_lost + 5) / 10  # Shift to 0-1 range
+        normalized_steps = stats.total_steps / max_steps
+        normalized_touches = min(stats.ball_touches / max_touches, 1)
+
+        # Weight the components
+        point_weight = 0.9
+        step_weight = 0.05
+        touch_weight = 0.05
+
+        fitness = (
+            point_weight * normalized_points +
+            step_weight * normalized_steps +
+            touch_weight * normalized_touches
+        )
+
+        return fitness
+
     @timer
     def evolve_genomes(self):
         # Sort genomes by fitness

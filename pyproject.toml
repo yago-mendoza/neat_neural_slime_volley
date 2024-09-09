@@ -9,9 +9,9 @@ readme = "README.md"
 python = "^3.11"
 slimevolleygym = "^0.1.0"
 opencv-python = "^4.10.0.84"
-gym = "^0.26.2"
 numpy = "^2.1.1"
 matplotlib = "^3.9.2"
+pygame = "^2.6.0"
 
 
 [build-system]
