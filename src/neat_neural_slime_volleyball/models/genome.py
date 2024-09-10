@@ -266,33 +266,42 @@ class Genome:
         if directory and not os.path.exists(directory):
             os.makedirs(directory)
 
-        genome_data = {
+        genome_data = self.to_dict()
+
+        with open(save_path, "w") as f:
+            json.dump(genome_data, f, indent=2)
+    
+    def to_dict(self):
+        return {
             "input_size": self.input_size,
             "output_size": self.output_size,
             "nodes": {str(node_id): node.to_dict() for node_id, node in self.nodes.items()},
             "synapses": {str(synapse_id): synapse.to_dict() for synapse_id, synapse in self.synapses.items()},
             "fitness": self.fitness
         }
-
-        with open(save_path, "w") as f:
-            json.dump(genome_data, f, indent=2)
     
     @classmethod
-    def load(cls, load_path: str):
+    def load(cls, load_path: Union[str, dict]):
         """
-        Load a genome from a file.
+        Load a genome from a file or a dictionary.
 
         Args:
-            load_path: The path to the file to load the genome from.
+            load_path: The path to the file to load the genome from or a dictionary containing genome data.
 
         Returns:
             The loaded genome.
 
         Example:
             genome = Genome.load("genome_20240510_123456_789012.json")
+            genome = Genome.load(genome_data_dict)
         """
-        with open(load_path, "r") as f:
-            genome_data = json.load(f)
+        if isinstance(load_path, str):
+            with open(load_path, "r") as f:
+                genome_data = json.load(f)
+        elif isinstance(load_path, dict):
+            genome_data = load_path
+        else:
+            raise ValueError("load_path must be a string (file path) or a dictionary.")
 
         genome = cls(genome_data["input_size"], genome_data["output_size"])
         genome.nodes = {int(node_id): Node.from_dict(node_data) for node_id, node_data in genome_data["nodes"].items()}

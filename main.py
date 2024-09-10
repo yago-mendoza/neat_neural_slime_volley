@@ -5,7 +5,7 @@ import pygame
 import random
 
 from src.neat_neural_slime_volleyball.vendor.fixed_slimevolley import SlimeVolleyEnv
-from src.neat_neural_slime_volleyball.utils.sym_render import Simulation
+from src.neat_neural_slime_volleyball.utils.simulation import Simulation
 from src.neat_neural_slime_volleyball.agents.neat_agent import NEATAgent
 from src.neat_neural_slime_volleyball.vendor import np
 from src.neat_neural_slime_volleyball.utils.timer import timer

@@ -1,4 +1,3 @@
-import pygame
 import sys
 from ..vendor.fixed_slimevolley import SlimeVolleyEnv
 import numpy as np
@@ -26,6 +25,7 @@ class Simulation:
         self.COLLECT_DATA = collect_data
         self.RENDER = render
         
+        if self.RENDER: import pygame
         if self.RENDER: pygame.init()
         if self.RENDER: self.clock = pygame.time.Clock()
         
