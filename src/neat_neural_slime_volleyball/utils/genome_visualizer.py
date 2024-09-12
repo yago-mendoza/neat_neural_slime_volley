@@ -1,6 +1,7 @@
 import pygame
 import json
 import time
+import math
 from ..models.genome import Genome
 
 class GenomeVisualizer:
@@ -59,18 +60,31 @@ class GenomeVisualizer:
             self.nodes[node_id] = {'pos': (375, 50 + i * hidden_spacing), 'radius': node_radius, 'color': (0, 0, 0)}
 
         for synapse in self.genome.synapses.values():
-            self.connections.append((synapse.from_node, synapse.to_node))
+            self.connections.append((synapse.from_node_id, synapse.to_node_id))
 
         self.draw_background()  # Draw the static background once
 
     def draw_background(self):
         self.background_surface.fill((255, 255, 255))  # Clear background
+
         for from_node, to_node in self.connections:
+            from_node_type = self.genome.nodes[from_node].type
+            to_node_type = self.genome.nodes[to_node].type
+
+            # Skip connections from input nodes to output nodes
+            if from_node_type == "input" and to_node_type == "output":
+                continue
+
             from_pos = self.nodes[from_node]['pos']
             to_pos = self.nodes[to_node]['pos']
-            color = (150, 150, 150) if self.genome.nodes[from_node].type == "hidden" or self.genome.nodes[to_node].type == "hidden" else (200, 200, 200)  # Lighter gray
-            pygame.draw.line(self.background_surface, color, from_pos, to_pos, 2)  # Draw synapse
+            color = (150, 150, 150) if from_node_type == "hidden" or to_node_type == "hidden" else (240, 240, 240)  # Lighter gray
 
+            # Draw the line
+            pygame.draw.line(self.background_surface, color, from_pos, to_pos, 2)
+
+            # Draw the arrow in the middle of the line
+            self.draw_arrow(from_pos, to_pos, color)
+        
         for node_id, node in self.nodes.items():
             pos = node['pos']
             pygame.draw.circle(self.background_surface, node['color'], pos, node['radius'])  # Draw node
@@ -78,8 +92,14 @@ class GenomeVisualizer:
             text = font.render(str(node_id), True, (255, 255, 255))
             self.background_surface.blit(text, (pos[0] - 10, pos[1] - 10))  # Draw node ID
 
-    def visualize(self, genome_json_path):
-        self.load_genome(genome_json_path)
+
+    def visualize(self, genome_json_path=None, genome=None):
+
+        if genome:
+            self.genome = genome
+            self.setup_visualization()
+        else:
+            self.load_genome(genome_json_path)
 
         running = True
         while running:
@@ -103,6 +123,34 @@ class GenomeVisualizer:
                     self.handle_mouse_up(event)
             elif event.type == pygame.MOUSEMOTION:
                 self.handle_mouse_motion(event)
+    
+    def draw_arrow(self, start_pos, end_pos, color):
+        """
+        Draw an arrow in the middle of the line from start_pos to end_pos with the given color.
+        """
+        arrow_size = 10  # Size of the arrow head
+        arrow_angle = 30  # Angle of the arrow head
+
+        # Calculate the middle point of the line
+        mid_pos = ((start_pos[0] + end_pos[0]) / 2, (start_pos[1] + end_pos[1]) / 2)
+
+        # Calculate the direction vector
+        direction = (end_pos[0] - start_pos[0], end_pos[1] - start_pos[1])
+        length = (direction[0]**2 + direction[1]**2) ** 0.5
+        direction = (direction[0] / length, direction[1] / length)
+
+        # Calculate the points for the arrow head
+        left_point = (
+            mid_pos[0] - arrow_size * (direction[0] * math.cos(math.radians(arrow_angle)) - direction[1] * math.sin(math.radians(arrow_angle))),
+            mid_pos[1] - arrow_size * (direction[1] * math.cos(math.radians(arrow_angle)) + direction[0] * math.sin(math.radians(arrow_angle)))
+        )
+        right_point = (
+            mid_pos[0] - arrow_size * (direction[0] * math.cos(math.radians(-arrow_angle)) - direction[1] * math.sin(math.radians(-arrow_angle))),
+            mid_pos[1] - arrow_size * (direction[1] * math.cos(math.radians(-arrow_angle)) + direction[0] * math.sin(math.radians(-arrow_angle)))
+        )
+
+        # Draw the arrow head
+        pygame.draw.polygon(self.background_surface, color, [mid_pos, left_point, right_point])  # Use a bright color for visibility
 
     def draw(self):
         self.screen.blit(self.background_surface, (0, 0))  # Draw the static background

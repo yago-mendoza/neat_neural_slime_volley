@@ -20,6 +20,7 @@ matplotlib = "^3.9.2"
 pygame = "^2.6.0"
 pytest = "^8.3.2"
 flask = "^3.0.3"
+imageio = "^2.35.1"
 
 [build-system]
 requires = ["poetry-core"]

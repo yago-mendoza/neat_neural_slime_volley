@@ -21,7 +21,6 @@ class DualPlot:
             ax.set_ylabel(ylabel)
             ax.grid(True, linestyle='--', alpha=0.7)
 
-    @timer
     def update(self, fitness_data, fitness_best, steps_data, steps_best):
         self.fitness_data.append(fitness_data)
         self.fitness_best.append(fitness_best)
@@ -95,7 +94,7 @@ class DualPlot:
         plt.show()
 
     @timer
-    def save(self, filename, output_folder):
+    def save_plot(self, filename, output_folder):
         plt.tight_layout()
         output_path = Path(output_folder)
         output_path.mkdir(parents=True, exist_ok=True)

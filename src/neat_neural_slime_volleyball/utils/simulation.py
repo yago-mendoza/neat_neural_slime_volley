@@ -25,7 +25,7 @@ class Simulation:
         self.COLLECT_DATA = collect_data
         self.RENDER = render
         
-        if self.RENDER: import pygame
+        if self.RENDER: import pygame # loaded on demand to avoid unnecessary imports
         if self.RENDER: pygame.init()
         if self.RENDER: self.clock = pygame.time.Clock()
         
@@ -54,6 +54,7 @@ class Simulation:
         while not done:
             frame_count += 1
             
+            if self.RENDER: import pygame
             if self.RENDER and pygame.event.get(pygame.QUIT): break
             
             # Use the genome to choose an action based on the current observation
