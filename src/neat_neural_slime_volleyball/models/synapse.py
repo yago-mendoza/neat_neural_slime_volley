@@ -5,12 +5,16 @@ class Synapse:
             self,
             synapse_id: int,
             from_node_id: int,
-            to_node_id: int
+            to_node_id: int,
+            weight: float = 0.0,
+            enabled: bool = True
         ):
 
         self.id = synapse_id
         self.from_node_id = from_node_id
         self.to_node_id = to_node_id
+        self.weight = weight
+        self.enabled = enabled
     
     def _set_weight(self, weight=None, input_size=None, output_size=None):
         # Weight is not set as argument as it requires Genome sizes to be set
@@ -27,14 +31,18 @@ class Synapse:
             "id": self.id,
             "from_node_id": self.from_node_id,
             "to_node_id": self.to_node_id   ,
-            "weight": self.weight
+            "weight": self.weight,
+            "enabled": self.enabled
         }
     @classmethod
-    def from_dict(cls, data):
-        # This is used to load the genome from a file
-        synapse = cls(data["id"], data["from_node_id"], data["to_node_id"])
-        synapse._set_weight(weight=data["weight"])
-        return synapse
+    def from_dict(cls, data: dict):
+        return cls(
+            synapse_id=data["id"],
+            from_node_id=data["from_node_id"],
+            to_node_id=data["to_node_id"],
+            weight=data["weight"],
+            enabled=data["enabled"]
+        )
 
     def __str__(self):
         return f"Synapse(id={self.id}, from_node_id={self.from_node_id}, to_node_id={self.to_node_id}, w={self.weight:.4f})"

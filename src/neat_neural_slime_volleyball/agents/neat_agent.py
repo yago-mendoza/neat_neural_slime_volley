@@ -4,6 +4,7 @@ from ..models.genome import Genome
 from ..models.node import Node
 from functools import partial
 from copy import deepcopy
+import random
 
 class NEATAgent:
     def __init__(self, input_size, output_size, population_size=50):
@@ -177,16 +178,59 @@ class NEATAgent:
         self,
         parent1: Genome,
         parent2: Genome
-    ):
-        # Create a deep copy of parent1
-        child = deepcopy(parent1)
+    ) -> Genome:
+        # Determine the more fit parent
+        if parent1.fitness > parent2.fitness:
+            more_fit_parent = parent1
+            less_fit_parent = parent2
+        else:
+            more_fit_parent = parent2
+            less_fit_parent = parent1
 
+        # Create a new child genome
+        child = Genome(parent1.input_size, parent1.output_size)
 
-        #Idea, empieza desde los nodos INPUT
-        # primero sclo a ppel
+        # Align genes based on innovation numbers
+        parent1_genes = {synapse.id: synapse for synapse in parent1.synapses.values()}
+        parent2_genes = {synapse.id: synapse for synapse in parent2.synapses.values()}
+
+        all_innovation_numbers = set(parent1_genes.keys()).union(parent2_genes.keys())
+
+        for innovation_number in all_innovation_numbers:
+            try:
+                if innovation_number in parent1_genes and innovation_number in parent2_genes:
+                    # Matching genes: randomly choose one parent's version
+                    chosen_synapse = random.choice([parent1_genes[innovation_number], parent2_genes[innovation_number]])
+                elif innovation_number in parent1_genes:
+                    # Disjoint or excess gene from parent1
+                    chosen_synapse = parent1_genes[innovation_number] if parent1 == more_fit_parent else None
+                else:
+                    # Disjoint or excess gene from parent2
+                    chosen_synapse = parent2_genes[innovation_number] if parent2 == more_fit_parent else None
+
+                if chosen_synapse:
+                    # Ensure nodes are added before their synapse
+                    if chosen_synapse.from_node_id not in child.nodes:
+                        child.nodes[chosen_synapse.from_node_id] = deepcopy(parent1.nodes[chosen_synapse.from_node_id])
+                    if chosen_synapse.to_node_id not in child.nodes:
+                        child.nodes[chosen_synapse.to_node_id] = deepcopy(parent1.nodes[chosen_synapse.to_node_id])
+                    child.synapses[chosen_synapse.id] = deepcopy(chosen_synapse)
+            except KeyError as e:
+                print(f"Warning: Skipping synapse with innovation number {innovation_number} due to missing node: {e}")
+
+        # Inherit nodes from the more fit parent
+        for node_id, node in more_fit_parent.nodes.items():
+            if node_id not in child.nodes:
+                child.nodes[node_id] = deepcopy(node)
+
+        # Handle disabled genes
+        for synapse in child.synapses.values():
+            if not synapse.enabled:
+                if random.random() < 0.75:
+                    synapse.enabled = False
 
         return child
-
+    
     @timer
     def evolve_genomes(
         self,

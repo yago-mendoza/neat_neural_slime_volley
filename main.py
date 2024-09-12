@@ -18,8 +18,8 @@ from src.neat_neural_slime_volleyball.utils.genome_visualizer import GenomeVisua
 # ------------------------
 
 # Simulation Parameters
-population_size = 150 # Number of genomes in the population
-num_generations = 150 # Number of generations to evolve the population
+population_size = 100 # Number of genomes in the population
+num_generations = 100 # Number of generations to evolve the population
 num_episodes = 3 # Number of episodes to run for each genome
 
 # Mutation Parameters
@@ -88,7 +88,7 @@ def main():
 
                 vg = GenomeVisualizer()
                 print(hash(genome))
-                vg.visualize(genome=genome)
+                # vg.visualize(genome=genome)
 
                 print(f"Error running simulation: {e}")
                 print(f"| WARNING: Genome is not acyclic or well-formed.")
@@ -166,7 +166,13 @@ def main():
         print("-------------------")
         print("Drawing the best genome game...")
         gvis = GenomeVisualizer()
-        gvis.visualize(BEST_GENOME)
+
+        best_genome_json_path = f"{OUTPUT_FOLDER}/{SESSION_NAME}/best_genome.json"
+        BEST_GENOME.save(best_genome_json_path)
+        
+        gvis.visualize(best_genome_json_path)
+
+
 
 
 # Data printing functions
