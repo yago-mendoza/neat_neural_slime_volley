@@ -162,17 +162,6 @@ class NEATAgent:
             else:
                 # If there are no hidden synapses, you could try another mutation
                 return partial_topological_mutation(g=g, m='ahs')
-        
-        
-            
-
-    # def crossover(
-    #     self,
-    #     parent1: Genome,
-    #     parent2: Genome
-    # ):
-    #     child =  Genome(self.input_size, self.output_size)
-    #     return child
 
     def crossover(
         self,
