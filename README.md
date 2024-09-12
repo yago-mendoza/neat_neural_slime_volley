@@ -1,4 +1,4 @@
-![Example GIF](https://github.com/yago-mendoza/neat_neural_slime_volley/blob/main/assets/header_giff.gif)
+<img src="https://github.com/yago-mendoza/neat_neural_slime_volley/blob/main/assets/header_giff.gif" alt="Example GIF" width="100%">
 
 # NEAT Neural Slime Volleyball
 
