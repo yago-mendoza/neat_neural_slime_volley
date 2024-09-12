@@ -154,11 +154,3 @@ class Synapse:
     def __repr__(self):
         return self.__str__()
 ```
-
-## Insights
-
-The NEAT algorithm is designed to evolve both the topology and weights of neural networks simultaneously. This project demonstrates the power of NEAT by evolving neural networks to play Slime Volleyball. 
-
-The genome's structure is managed carefully to ensure mathematical integrity, and the crossover process includes error handling to manage inconsistencies. The project also includes tools for visualizing the genome structure and performance, providing valuable insights into the evolution process.
-
-The code examples provided above give a deeper look into the implementation details of the crossover process, genome initialization, and synapse management, which are crucial components of the NEAT algorithm in this project.
