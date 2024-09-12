@@ -1,3 +1,5 @@
+![Example GIF](https://github.com/yago-mendoza/neat_neural_slime_volley/blob/main/assets/header_giff.gif)
+
 # NEAT Neural Slime Volleyball
 
 This project implements a NeuroEvolution of Augmenting Topologies (NEAT) algorithm to evolve neural networks for playing a simplified version of volleyball, known as Slime Volleyball.
