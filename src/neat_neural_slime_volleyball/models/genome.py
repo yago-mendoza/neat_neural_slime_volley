@@ -9,6 +9,9 @@ from ..utils.pretty_dict import PrettyDict
 
 from .node import Node, InputNode, OutputNode, HiddenNode
 from .synapse import Synapse
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GenomeStats:
 
@@ -72,7 +75,10 @@ class GenomeHiddenOperationsMixin:
         self,
         from_node: Union[int, Node],
         to_node: Union[int, Node]
-    ) -> None:
+    ) -> Tuple[int, Node]:
+        """
+        Add a hidden node by splitting an existing synapse.
+        """
         # Format input & check existance
         from_node = self.nodes[from_node] if isinstance(from_node, int) else from_node
         to_node = self.nodes[to_node] if isinstance(to_node, int) else to_node
@@ -102,20 +108,17 @@ class GenomeHiddenOperationsMixin:
         if existing_synapse:
             del self.synapses[existing_synapse.id]
 
-        # [Operation] Add hidden node (and its incoming and outgoing synapses)
         hidden_node_id, hidden_node = self._add_node(type="hidden")
         self.add_synapse(from_node, hidden_node, maintenance_mode=True)
         self.add_synapse(hidden_node, to_node, maintenance_mode=True)
 
         if not self._is_acyclic() or not self._well_formed():
-            # we revert wht we just did
-            print(f"Reverting addition of hidden node (genome <{hash(self)}>)")
+            logger.debug(f"Reverting addition of hidden node {hidden_node_id} due to integrity check failure.")
             self.remove_node(hidden_node_id, maintenance_mode=True)
             if existing_synapse:
                 self.add_synapse(from_node, to_node, maintenance_mode=True)
-
-            return 0
-
+            raise ValueError("Genome became cyclic or malformed after adding a hidden node.")
+        
         return hidden_node_id, hidden_node
     
     def remove_node(
@@ -242,11 +245,10 @@ class GenomeHiddenOperationsMixin:
         #     self.remove_synapse(synapse_id)  # Rollback if invalid
         #     raise ValueError("Adding this synapse would create an invalid state.")
     
-    def remove_synapse(
-        self,
-        synapse: Union[int, Synapse],
-        maintenance_mode: bool = False
-    ) -> int:
+    def remove_synapse(self, synapse: Union[int, Synapse], maintenance_mode: bool = False) -> int:
+        """
+        Remove a synapse and ensure genome integrity.
+        """
         # Format input & check existence
         synapse_id = synapse.id if isinstance(synapse, Synapse) else synapse
         from_node_id = self.synapses[synapse_id].from_node_id
@@ -264,12 +266,12 @@ class GenomeHiddenOperationsMixin:
         del self.synapses[synapse_id]
 
         if not maintenance_mode:
-            # [Post-!] Check for acyclicity and well-formedness
             if not self._is_acyclic() or not self._well_formed():
-                print(f"Reverting removal of synapse (genome <{hash(self)}>)")
+                logger.debug(f"Reverting removal of synapse {synapse_id} due to integrity check failure.")
                 self.add_synapse(from_node_id, to_node_id, maintenance_mode=True)
-                print("Removing this synapse would create an invalid state.")
-                return 0
+                raise ValueError("Removing this synapse creates a cycle or disconnects the genome.")
+        
+        return 1
 
         # # [Post-operation] Updates node's incoming and outgoing synapses
         # from_node = self.nodes[from_node_id]
